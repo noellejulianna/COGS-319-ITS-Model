@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1576441965286.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "709082861",
+    "id" : "39AA3C4",
+    "lastKnownWriteTime" : 1576440106,
+    "last_content_update" : 1576440106,
+    "path" : "~/Desktop/COGS-319-ITS-Model/ITS.R",
+    "project_path" : "ITS.R",
+    "properties" : {
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

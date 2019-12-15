@@ -1,0 +1,24 @@
+
+The default interactive shell is now zsh.
+To update your account to use zsh, please run `chsh -s /bin/zsh`.
+For more details, please visit https://support.apple.com/kb/HT208050.
+]0;~/Desktop/COGS-319-ITS-Model[?1034h(base) MacBook-Pro:COGS-319-ITS-Model noellemorris$ [K(base) MacBook-Pro:COGS-319-ITS-Model noellemorris$ git init
+Initialized empty Git repository in /Users/noellemorris/Desktop/COGS-319-ITS-Model/.git/
+]0;~/Desktop/COGS-319-ITS-Model(base) MacBook-Pro:COGS-319-ITS-Model noellemorris$ git add -a[K[K[K[K[K[Kstatus
+On branch master
+
+No commits yet
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	[31m.Rproj.user/[m
+	[31m319-ITS-Model.Rproj[m
+	[31mDatacamp-Holoword.R[m
+	[31mITS-BEAGLE-storage.R[m
+	[31mITS-MINERVA2-retrieval.R[m
+	[31mITS.R[m
+	[31mcommon-words.R[m
+
+nothing added to commit but untracked files present (use "git add" to track)
+]0;~/Desktop/COGS-319-ITS-Model(base) MacBook-Pro:COGS-319-ITS-Model noellemorris$ git add --all
