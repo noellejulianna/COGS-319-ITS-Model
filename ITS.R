@@ -32,7 +32,7 @@ sotu.tibble <- rename(sotu.tibble, text = 'sotu.text')
 # Set parameters
 n.dimensions <- 300
 tau <- 3
-forgetting.rate <- 0
+forgetting.rate <- 1
 
 # Get unique words in the corpus
 sotu.words <- sotu.tibble %>% # Deconstruct SOTU into words
