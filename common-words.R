@@ -18,7 +18,7 @@ sotu.text <- sotu_text %>%
 # 2. Change variable name 'unique.tbl' in line 42 to [presidentname].unique.tbl
 
 # Run to analyze SOTU speeches of a particular president
-speeches <- which(sotu_meta$president == 'William J. Clinton') # Change string for different presidents
+speeches <- which(sotu_meta$president == 'George W. Bush') # Change string for different presidents
 sotu.tibble <- tibble(sotu.text[speeches]) # Transform SOTU speeches into a tibble of each speech
 sotu.tibble <- rename(sotu.tibble, text = 'sotu.text[speeches]')
 
@@ -27,7 +27,7 @@ sotu.words <- sotu.tibble %>% # Deconstruct SOTU into words
   anti_join(stop_words) %>% # Remove stop words
   count(word, sort=T) # Count word frequency
 
-clinton.unique.tbl <- unique(sotu.words) # Take all unique words in SOTU 
+bush.unique.tbl <- unique(sotu.words) # Take all unique words in SOTU 
 
 # Once there is a unique.tbl for each president, run the code below to get all the common words across presidents
 common <- intersect(obama.unique.tbl$word, bush.unique.tbl$word) %>%

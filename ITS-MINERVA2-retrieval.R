@@ -1,8 +1,8 @@
 # This is a version of ITS with MINERVA2's original implementation (FORMULA 5 in Jamieson et al.)
 # To test this retrieval method with the rest of ITS:
-#   1. Run lines 1-109 in ITS.R
+#   1. Run lines 1-119 in ITS.R
 #   2. Run the code below
-#   3. Run lines 130 onwards in ITS.R
+#   3. Run lines 131 onwards in ITS.R
 
 make.echo <- function(word, wordvecs, mem, tau){
   for(row in 1:nrow(mem)){

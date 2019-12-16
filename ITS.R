@@ -13,15 +13,16 @@ sotu.text <- sotu_text %>%
    gsub(pattern = '[0-9]+', replacement = '') %>%
    gsub(pattern = "Mr.", replacement = "Mr") %>%
    gsub(pattern = "Ms.", replacement = "Ms") %>%
-   gsub(pattern = "Mrs.", replacement = "Mrs")
+   gsub(pattern = "Mrs.", replacement = "Mrs") %>%
+   gsub(pattern = "\\[.*?\\]", replacement = "")
 
 # Run to analyze SOTU speeches of a particular president
-speeches <- which(sotu_meta$president == 'Barack Obama') # Change string for different presidents
+speeches <- which(sotu_meta$president == 'George W. Bush') # Change string for different presidents
 sotu.tibble <- tibble(sotu.text[speeches]) # Transform SOTU speeches into a tibble of each speech
 sotu.tibble <- rename(sotu.tibble, text = 'sotu.text[speeches]')
 
 # Run to analyze SOTU speeches of a particular party
-speeches <- which(sotu_meta$party == 'Republican') # Change string for different presidents
+speeches <- which(sotu_meta$party == 'Democratic') # Change string for different presidents
 sotu.tibble <- tibble(sotu.text[speeches]) # Transform SOTU speeches into a tibble of each speech
 sotu.tibble <- rename(sotu.tibble, text = 'sotu.text[speeches]')
 
@@ -32,7 +33,7 @@ sotu.tibble <- rename(sotu.tibble, text = 'sotu.text')
 # Set parameters
 n.dimensions <- 300
 tau <- 3
-forgetting.rate <- 1
+forgetting.rate <- 0
 
 # Get unique words in the corpus
 sotu.words <- sotu.tibble %>% # Deconstruct SOTU into words
@@ -129,14 +130,22 @@ semantic.subset <- function(probe, wordvecs, mem, tau){ # Retrieve weighted sum 
 
 # Politically significant words in common with more than 100 occurences for dep_n and rep_n in common,
 # except for race, god, and bless
-politics <- c("government","war","power","peace","business","free", 
+parties <- c("government","war","power","peace","business","free", 
               "economic","military","duty","jobs","education","children",
               "justice","debt","law","policy","foreign","progress","future",
               "security","land","americans","race","women","fail","labor",
               "public","hope","strong","god","bless")
+bush <- c("tax","relief","terrorists","war","iraqi","freedom","security",
+          "permission","slip","defend","america","enemy","love","children",
+          "god","evil","violence","foreign","policy","oil","saddam",
+          "afghanistan")
+metaphors <- c("deepen","inequality",
+               "increase","prosperity","embrace","success",
+               "provide","security","cultivate","safety",
+               "question","authority","attack","power")
 
 # Get semantic space
-probe.list <- politics
+probe.list <- metaphors
 semantic.space <- semantic.subset(probe = probe.list,
                                   wordvecs = env.vectors,
                                   mem = memory,
@@ -144,7 +153,7 @@ semantic.space <- semantic.subset(probe = probe.list,
 
 sem.space.table <- cosine.table(semantic.space)
 
-# Plot the results as a clustered correlation plot
+# Plot the results as a heatmap of cosine similarity between each word
 ggcorrplot(sem.space.table,
            method = "circle",
            legend.title = "Cosine Similarity",
@@ -156,15 +165,15 @@ ggcorrplot(sem.space.table,
            type = "lower"
 )
 
-disttable <- dist(semantic.space, method="euclidean")
-distmatrix <- as.matrix(disttable)
-ggcorrplot(distmatrix,
-           method = "circle",
-           legend.title = "Cosine Similarity",
-           lab = TRUE,
-           lab_size = 2,
-           outline.color = "white",
-           colors = c("#FE4A49", "#FED766", "#00B77D"),
-           hc.order = TRUE,
-           type = "lower"
-) + scale_fill_gradient2(limit = c(0,650), low = "#00B77D", high =  "#FE4A49", mid = "#FED766", midpoint = 325)
+# Plot the distances between echoes in the semantic space
+distances <- dist(semantic.space) #Get distance between vectors for each word
+distance.matrix <- as.matrix(distances) # To see distance values for context 
+two.d.distances <- cmdscale(distances) # Scale the 300 dimensions to 2 dimensions for easy visualization
+
+x <- two.d.distances[,1] # Get x-coordinates
+y <- two.d.distances[,2] # Get y-coordinates
+
+# Plot the word vectors in a 2d space
+plot(x, y, xlab="Dimension 1", ylab="Dimension 2",
+     main="Distances between words in SOTU", type="n")
+text(x, y, labels = row.names(semantic.space), cex=.7)
