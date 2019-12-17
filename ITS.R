@@ -113,18 +113,20 @@ rm(p)
 semantic.subset <- function(probe, wordvecs, mem, tau){ # Retrieve weighted sum of the traces
   subset <- matrix(0, length(probe), ncol(mem)) 
   for(i in 1:length(probe)){
-    probe.words <- unlist(strsplit(probe[i], split="/")) # Separate the words in the probe
-    if(all(probe %in% rownames(wordvecs)) == TRUE){ # Check if all the prove words are in memory
-      for(row in 1:nrow(mem)){ # Create get the activation for every row in memory
-        a <- 1.0
-        for(word in 1:length(probe.words)){ # Make the activaiton the product of all the activations for each word in the probe
-          a <- a * cosine(wordvecs[probe.words[word],], mem[row,])^tau # FORMULA 6 in Jamieson et al.
-          }
-        subset[i,] <- subset[i,] + a * mem[row,] # Multiply the activation by each row in memory then sum all the traces to make an echo for the probe word
-      }
+    probe.word <- unlist(strsplit(probe[i], split="/")) # Take the nth word in the probe
+    if(grepl("\\s", probe.word)){
+      probe.word <- unlist(strsplit(probe.word, split=" "))
+    }
+    for(row in 1:nrow(mem)){ # Get the activation for every row in memory
+      a <- 1.0
+      for(word in 1:length(probe.word)){ # Make the activation the product of all the activations for each word in the probe
+        a <- a * cosine(wordvecs[probe.word[word],], mem[row,])^tau # FORMULA 6 in Jamieson et al.
+        }
+      subset[i,] <- subset[i,] + a * mem[row,] # Multiply the activation by each row in memory then sum all the traces to make an echo for the probe word
     }
   }
   rownames(subset) <- probe # Add row names corresponding to probe words
+  subset <- subset[abs(rowSums(subset)) != 0,]
   return(subset)
 }
 
@@ -135,17 +137,22 @@ parties <- c("government","war","power","peace","business","free",
               "justice","debt","law","policy","foreign","progress","future",
               "security","land","americans","race","women","fail","labor",
               "public","hope","strong","god","bless")
+
 bush <- c("tax","relief","terrorists","war","iraqi","freedom","security",
           "permission","slip","defend","america","enemy","love","children",
           "god","evil","violence","foreign","policy","oil","saddam",
           "afghanistan")
-metaphors <- c("deepen","inequality",
-               "increase","prosperity","embrace","success",
-               "provide","security","cultivate","safety",
-               "question","authority","attack","power")
+
+deepen.metaphor <- c("deepen inequality",
+                     "increase prosperity", "embrace success",
+                     "increase prosperity", "embrace success",
+                     "question authority", "attack power")
+prosper.metaphor <- c("increase","prosperity","embrace","success")
+protect.metaphor <- c("provide","security","cultivate","safety")
+challenge.metaphor <- c("question","authority","attack","power")
 
 # Get semantic space
-probe.list <- metaphors
+probe.list <- parties
 semantic.space <- semantic.subset(probe = probe.list,
                                   wordvecs = env.vectors,
                                   mem = memory,
