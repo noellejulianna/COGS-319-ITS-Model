@@ -114,18 +114,18 @@ semantic.subset <- function(probe, wordvecs, mem, tau){ # Retrieve weighted sum 
   subset <- matrix(0, length(probe), ncol(mem)) 
   for(i in 1:length(probe)){
     probe.word <- unlist(strsplit(probe[i], split="/")) # Take the nth word in the probe
-    if(grepl("\\s", probe.word)){
-      probe.word <- unlist(strsplit(probe.word, split=" "))
+    if(grepl("\\s", probe.word)){ # Check if the word is a phrase (has a space)
+      probe.word <- unlist(strsplit(probe.word, split=" ")) # Split the phrase in probe.word into separate strings
     }
     for(row in 1:nrow(mem)){ # Get the activation for every row in memory
       a <- 1.0
-      for(word in 1:length(probe.word)){ # Make the activation the product of all the activations for each word in the probe
-        a <- a * cosine(wordvecs[probe.word[word],], mem[row,])^tau # FORMULA 6 in Jamieson et al.
+      for(word in 1:length(probe.word)){ # If length = 1, loops once and gets a single activation, if lenth > 1 loops as many times as the words in the phrase
+        a <- a * cosine(wordvecs[probe.word[word],], mem[row,])^tau # FORMULA 4 OR FORMULA 6 in Jamieson et al., depending on word or phrase input
         }
       subset[i,] <- subset[i,] + a * mem[row,] # Multiply the activation by each row in memory then sum all the traces to make an echo for the probe word
     }
   }
-  rownames(subset) <- probe # Add row names corresponding to probe words
+  rownames(subset) <- probe # Add row names corresponding to probe words/phases
   subset <- subset[abs(rowSums(subset)) != 0,]
   return(subset)
 }
@@ -138,27 +138,35 @@ parties <- c("government","war","power","peace","business","free",
               "security","land","americans","race","women","fail","labor",
               "public","hope","strong","god","bless")
 
+# Themes from the Bush era and phrases mentioned by Lakoff
 bush <- c("tax","relief","terrorists","war","iraqi","freedom","security",
           "permission","slip","defend","america","enemy","love","children",
-          "god","evil","violence","foreign","policy","oil","saddam",
+          "god","evil","violence","foreign","cuts","oil","saddam",
           "afghanistan")
 
-deepen.metaphor <- c("deepen inequality",
+# Metaphor test words, as a phrase
+metaphor.phrases <- c("deepen inequality",
                      "increase prosperity", "embrace success",
-                     "increase prosperity", "embrace success",
+                     "provide security", "cultivate safety",
                      "question authority", "attack power")
-prosper.metaphor <- c("increase","prosperity","embrace","success")
-protect.metaphor <- c("provide","security","cultivate","safety")
-challenge.metaphor <- c("question","authority","attack","power")
+
+metaphor.words <- c("deepen", "inequality", 
+                      "increase","prosperity","embrace","success",
+                      "provide","security","cultivate","safety",
+                      "question","authority","attack","power")
 
 # Get semantic space
-probe.list <- parties
+probe.list <- metaphor.phrases
 semantic.space <- semantic.subset(probe = probe.list,
                                   wordvecs = env.vectors,
                                   mem = memory,
                                   tau = 3)
 
 sem.space.table <- cosine.table(semantic.space)
+
+# Get the difference between Democratic and Republican speeches by saving their respective
+# sem.space.tables and getting the absolute value between them
+diff.space.table <- abs(dem.space.table - rep.space.table)
 
 # Plot the results as a heatmap of cosine similarity between each word
 ggcorrplot(sem.space.table,
@@ -180,7 +188,11 @@ two.d.distances <- cmdscale(distances) # Scale the 300 dimensions to 2 dimension
 x <- two.d.distances[,1] # Get x-coordinates
 y <- two.d.distances[,2] # Get y-coordinates
 
-# Plot the word vectors in a 2d space
-plot(x, y, xlab="Dimension 1", ylab="Dimension 2",
-     main="Distances between words in SOTU", type="n")
+# Plot the word vectors in a 2d space, commented x and y limits are for zooming into clusters of plot
+plot(x, y, 
+     xlab="Dimension 1", ylab="Dimension 2",
+     # xlim = c(0,0.01),
+     # ylim = c(0.0042,0.0055),
+     main="Distances between words in SOTU", 
+     type="n")
 text(x, y, labels = row.names(semantic.space), cex=.7)
