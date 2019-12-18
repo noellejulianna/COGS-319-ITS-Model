@@ -5,7 +5,7 @@ library(dplyr)
 library(stringr)
 library(ggcorrplot)
 
-set.seed(12604)
+set.seed(12604) # !!! Makes sure that the random numbers generated in rnorm are always the same !!!
 
 # Pre-tokenizing cleaning to remove symbols and punctuation that could interfere with tokenizing
 # into sentences
@@ -33,7 +33,6 @@ sotu.tibble <- rename(sotu.tibble, text = 'sotu.text')
 # Set parameters
 n.dimensions <- 300
 tau <- 3
-forgetting.rate <- 0
 
 # Get unique words in the corpus
 sotu.words <- sotu.tibble %>% # Deconstruct SOTU into words
@@ -104,11 +103,6 @@ cosine.table <- function(semspace){
   return(cos.table)
 }
 
-# Introduce forgetting to memory (Forgetting_rate = 1 - L)
-p <- matrix(runif(nrow(memory)*ncol(memory), 0, 1), nrow(memory), ncol(memory))
-memory <- memory * ifelse(p < forgetting.rate, 0, 1)
-rm(p)
-
 # Get semantic vectors (probe = list of probe words, wordvecs = words matrix, mem = memory matrix, tau = retrieval gradient)
 semantic.subset <- function(probe, wordvecs, mem, tau){ # Retrieve weighted sum of the traces
   subset <- matrix(0, length(probe), ncol(mem)) 
@@ -125,8 +119,7 @@ semantic.subset <- function(probe, wordvecs, mem, tau){ # Retrieve weighted sum 
       subset[i,] <- subset[i,] + a * mem[row,] # Multiply the activation by each row in memory then sum all the traces to make an echo for the probe word
     }
   }
-  rownames(subset) <- probe # Add row names corresponding to probe words/phases
-  subset <- subset[abs(rowSums(subset)) != 0,]
+  rownames(subset) <- probe # Add row names corresponding to probe words
   return(subset)
 }
 
@@ -156,7 +149,7 @@ metaphor.words <- c("deepen", "inequality",
                       "question","authority","attack","power")
 
 # Get semantic space
-probe.list <- metaphor.phrases
+probe.list <- parties
 semantic.space <- semantic.subset(probe = probe.list,
                                   wordvecs = env.vectors,
                                   mem = memory,
